@@ -8,8 +8,10 @@ import CustomTitle from "./CustomTitle";
 
 const HighlightedAchievements = () => {
   const [achievements, setAchievements] = useState([]);
+  const [expandedCardId, setExpandedCardId] = useState(null);
   const carouselRef = useRef(null);
 
+  // Fetch achievements
   useEffect(() => {
     const fetchAchievements = async () => {
       try {
@@ -27,29 +29,75 @@ const HighlightedAchievements = () => {
     fetchAchievements();
   }, []);
 
+  // Disable/enable body scrolling when expandedCardId changes
+  useEffect(() => {
+    if (expandedCardId) {
+      document.body.style.overflow = "hidden"; // Disable scroll
+    } else {
+      document.body.style.overflow = "auto"; // Enable scroll
+    }
+  }, [expandedCardId]);
+
+  // Scroll the carousel
   const scrollLeft = () => {
-    carouselRef.current.scrollBy({ left: -350, behavior: "smooth" });
+    if (carouselRef.current) {
+      carouselRef.current.scrollBy({ left: -1050, behavior: "smooth" });
+    }
+  };
+  const scrollRight = () => {
+    if (carouselRef.current) {
+      carouselRef.current.scrollBy({ left: 1050, behavior: "smooth" });
+    }
   };
 
-  const scrollRight = () => {
-    carouselRef.current.scrollBy({ left: 350, behavior: "smooth" });
+  // Expand or collapse a card
+  const toggleExpand = (id) => {
+    setExpandedCardId((prevId) => (prevId === id ? null : id));
+  };
+
+  // Next/Prev in expanded mode
+  const handleExpandNext = () => {
+    if (!expandedCardId) return;
+    const idx = achievements.findIndex((a) => a.id === expandedCardId);
+    if (idx < achievements.length - 1) {
+      setExpandedCardId(achievements[idx + 1].id);
+    }
+  };
+
+  const handleExpandPrev = () => {
+    if (!expandedCardId) return;
+    const idx = achievements.findIndex((a) => a.id === expandedCardId);
+    if (idx > 0) {
+      setExpandedCardId(achievements[idx - 1].id);
+    }
   };
 
   return (
-    <div className="bg-black py-8 lg:h-[100vh] flex items-center justify-center">
-      <div className="max-w-[1280px] flex flex-col items-center mx-auto py-[20px]">
+    <div className="relative bg-black py-8 lg:h-[100vh] flex items-center justify-center">
+      {/* Blurred Backdrop (only active if a card is expanded) */}
+      <div
+        className={`fixed inset-0 transition-all duration-10000 ${
+          expandedCardId
+            ? "bg-black/70 backdrop-blur-md z-[900] opacity-100"
+            : "opacity-0 pointer-events-none"
+        }`}
+      />
+
+      {/* Main container (carousel) */}
+      <div className="max-w-[1280px] flex flex-col items-center mx-auto py-[20px] relative z-[1000]">
         <CustomTitle text="Highlights and Achievements" />
+
         <div className="relative w-full mt-[30px]">
-          {/* Navigation Buttons */}
+          {/* Carousel Navigation Buttons */}
           <button
             onClick={scrollLeft}
-            className="absolute left-2 top-[50%] transform -translate-y-[50%] z-10 bg-gray-800 text-white p-2 rounded-full shadow-md"
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 bg-gray-800 text-white p-2 rounded-full shadow-md"
           >
             ←
           </button>
           <button
             onClick={scrollRight}
-            className="absolute right-2 top-[50%] transform -translate-y-[50%] z-10 bg-gray-800 text-white p-2 rounded-full shadow-md"
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 bg-gray-800 text-white p-2 rounded-full shadow-md"
           >
             →
           </button>
@@ -59,16 +107,21 @@ const HighlightedAchievements = () => {
             ref={carouselRef}
             className="flex gap-5 w-full overflow-x-hidden py-4"
           >
-            {achievements.map((achievement) => (
-              <div
-                className="flex-shrink-0"
-                style={{ width: "300px" }}
-                key={achievement.id}
-              >
+            {achievements.map((achievement, index) => (
+              <div key={achievement.id} className="flex-shrink-0">
                 <AchievementCards
                   title={achievement.title}
                   description={achievement.description}
-                  imageUrl={achievement.image.url}
+                  // Important: pass the correct image prop
+                  imageUrl={achievement.image?.url}
+                  // Check if this card is expanded
+                  isExpanded={expandedCardId === achievement.id}
+                  onToggleExpand={() => toggleExpand(achievement.id)}
+                  // Pass next/prev for navigation
+                  onNext={handleExpandNext}
+                  onPrev={handleExpandPrev}
+                  isFirst={index === 0}
+                  isLast={index === achievements.length - 1}
                 />
               </div>
             ))}

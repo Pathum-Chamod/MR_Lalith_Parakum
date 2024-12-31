@@ -14,7 +14,7 @@ if (!getApps().length) {
 }
 
 // Allowed admin emails - secure on the server
-const allowedAdminEmails = ["lalith@gmail.com", "spcds123@gmail.com"];
+const allowedAdminEmails = ["lalith@gmail.com", "spcds123@gmail.com","pushpithasandakelum@gmail.com","vitharanaps@gmail.com"];
 
 export async function middleware(request) {
   const authToken = request.cookies.get("token"); // Retrieve token from cookies
