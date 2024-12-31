@@ -77,16 +77,14 @@ export const InfiniteMovingCards = ({
           box-shadow: 0 0 10px #8b5cf6, 0 0 20px #ec4899;
           animation: magical-sparkle 2s infinite alternate;
         }
-        
-        .scrollbar-magical::-webkit-scrollbar-track {
-          background: linear-gradient(to right, #1e293b, #0f172a);
-          border-radius: 9999px;
-        }
-
         .scrollbar-magical::-webkit-scrollbar-thumb:hover {
           background: linear-gradient(to right, #a855f7, #f43f5e, #fb923c);
           box-shadow: 0 0 15px #a855f7, 0 0 30px #fb923c;
           animation: magical-glow 1s infinite alternate;
+        }
+        .scrollbar-magical::-webkit-scrollbar-track {
+          background: linear-gradient(to right, #1e293b, #0f172a);
+          border-radius: 9999px;
         }
 
         @keyframes magical-sparkle {
