@@ -1,13 +1,14 @@
 "use client";
 
 import { db, storage } from "@/lib/firebase";
-import { addDoc, collection, deleteDoc, doc, getDocs } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDocs, updateDoc } from "firebase/firestore";
 import { deleteObject, getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import { useEffect, useState } from "react";
 
 const AchievementManager = () => {
   const [achievements, setAchievements] = useState([]);
   const [newAchievement, setNewAchievement] = useState({ title: "", description: "", image: null });
+  const [editAchievement, setEditAchievement] = useState(null); // To track the achievement being edited
   const [loading, setLoading] = useState(false);
 
   // Fetch Achievements
@@ -89,6 +90,55 @@ const AchievementManager = () => {
     }
   };
 
+  // Update Achievement
+  const updateAchievement = async () => {
+    if (!editAchievement.title || !editAchievement.description) {
+      alert("Please fill all fields!");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const achievementRef = doc(db, "Achievements", editAchievement.id);
+
+      if (editAchievement.newImage) {
+        // Upload new image to storage
+        const storageRef = ref(storage, `AchievementPictures/${Date.now()}_${editAchievement.newImage.name}`);
+        const uploadTask = uploadBytesResumable(storageRef, editAchievement.newImage);
+        await uploadTask;
+        const imageUrl = await getDownloadURL(storageRef);
+
+        // Delete old image
+        if (editAchievement.image.path) {
+          const oldImageRef = ref(storage, editAchievement.image.path);
+          await deleteObject(oldImageRef);
+        }
+
+        // Update Firestore with new image
+        await updateDoc(achievementRef, {
+          title: editAchievement.title,
+          description: editAchievement.description.slice(0, 220),
+          image: { url: imageUrl, path: storageRef.fullPath },
+        });
+      } else {
+        // Update Firestore without changing the image
+        await updateDoc(achievementRef, {
+          title: editAchievement.title,
+          description: editAchievement.description.slice(0, 220),
+        });
+      }
+
+      alert("Achievement updated successfully!");
+      fetchAchievements(); // Refresh achievements
+      setEditAchievement(null);
+    } catch (error) {
+      console.error("Error updating achievement:", error);
+      alert("Failed to update achievement.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="p-6 bg-gray-800 text-white rounded-lg">
       <h2 className="text-xl font-semibold mb-4">Manage Achievements</h2>
@@ -124,24 +174,74 @@ const AchievementManager = () => {
         </button>
       </div>
 
-      {/* Display Achievements */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+      {/* List Achievements */}
+      <div className="space-y-4">
         {achievements.map((achievement) => (
-          <div key={achievement.id} className="bg-gray-700 p-4 rounded shadow">
-            <h3 className="text-white font-semibold">{achievement.title}</h3>
-            <p className="text-gray-400">{achievement.description}</p>
-            <img
-              src={achievement.image.url}
-              alt={achievement.title}
-              className="w-full h-48 object-cover rounded mb-2"
-            />
-            <button
-              onClick={() => deleteAchievement(achievement.id, achievement.image.path)}
-              className="bg-red-600 px-4 py-2 rounded hover:bg-red-700 mr-2"
-              disabled={loading}
-            >
-              Delete
-            </button>
+          <div
+            key={achievement.id}
+            className="bg-gray-700 p-4 rounded shadow flex items-center justify-between"
+          >
+            {editAchievement?.id === achievement.id ? (
+              <div className="flex-1">
+                <input
+                  type="text"
+                  className="w-full p-2 rounded bg-gray-600 text-white mb-2"
+                  value={editAchievement.title}
+                  onChange={(e) => setEditAchievement({ ...editAchievement, title: e.target.value })}
+                />
+                <textarea
+                  className="w-full p-2 rounded bg-gray-600 text-white mb-2"
+                  value={editAchievement.description}
+                  onChange={(e) => setEditAchievement({ ...editAchievement, description: e.target.value })}
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="w-full p-2 rounded bg-gray-600 text-white mb-2"
+                  onChange={(e) => setEditAchievement({ ...editAchievement, newImage: e.target.files[0] })}
+                />
+                <button
+                  onClick={updateAchievement}
+                  className="bg-green-600 px-4 py-2 rounded hover:bg-green-700 mr-2"
+                  disabled={loading}
+                >
+                  {loading ? "Updating..." : "Update"}
+                </button>
+                <button
+                  onClick={() => setEditAchievement(null)}
+                  className="bg-gray-500 px-4 py-2 rounded hover:bg-gray-600"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex-1">
+                <h3 className="text-white font-semibold">{achievement.title}</h3>
+                <p className="text-gray-400">{achievement.description}</p>
+                <img
+                  src={achievement.image.url}
+                  alt={achievement.title}
+                  className="w-24 h-24 object-cover rounded mt-2"
+                />
+              </div>
+            )}
+            {!editAchievement && (
+              <div>
+                <button
+                  onClick={() => setEditAchievement(achievement)}
+                  className="bg-yellow-600 px-4 py-2 rounded hover:bg-yellow-700 mr-2"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => deleteAchievement(achievement.id, achievement.image.path)}
+                  className="bg-red-600 px-4 py-2 rounded hover:bg-red-700"
+                  disabled={loading}
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
