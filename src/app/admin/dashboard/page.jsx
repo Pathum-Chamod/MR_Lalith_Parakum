@@ -1,5 +1,6 @@
 "use client";
 
+import AchievementManager from "@/components/crud/AchievementManager";
 import ProfileManager from "@/components/crud/ProfileManager";
 import SlideshowManager from "@/components/crud/SlideshowManager";
 
@@ -15,9 +16,15 @@ const AdminDashboard = () => {
       </div>
 
       {/* Profile Section */}
-      <div className="bg-gray-900 p-6 rounded-lg shadow-lg border border-gray-700">
+      <div className="bg-gray-900 p-6 rounded-lg shadow-lg border border-gray-700 mb-8">
         <h2 className="text-2xl font-semibold mb-4 text-center">Profile Section</h2>
         <ProfileManager />
+      </div>
+
+      {/* Achievements Section */}
+      <div className="bg-gray-900 p-6 rounded-lg shadow-lg border border-gray-700">
+        <h2 className="text-2xl font-semibold mb-4 text-center">Achievements Section</h2>
+        <AchievementManager />
       </div>
     </div>
   );
