@@ -3,7 +3,7 @@ import HeroSection from '@/components/HeroSection'
 import HighlightedAchievements from '@/components/HighlightedAchievements'
 import { InfiniteMovingCardsDemo } from '@/components/InfiniteMovingCardsDemo'
 import ProfileSection from '@/components/ProfileSection'
-import SuccessStories from '@/components/SuccessStories'
+//import SuccessStories from '@/components/SuccessStories'
 import React from 'react'
 
 const HomePage = () => {
@@ -13,7 +13,8 @@ const HomePage = () => {
   <Hero2 />
   <ProfileSection />
   <HighlightedAchievements />
-  <SuccessStories   />
+{/*  <SuccessStories   />  */}
+
   <InfiniteMovingCardsDemo />
 </div>
   )
