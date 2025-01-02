@@ -29,24 +29,15 @@ const HighlightedAchievements = () => {
     fetchAchievements();
   }, []);
 
-  // Disable/enable body scrolling when expandedCardId changes
-  useEffect(() => {
-    if (expandedCardId) {
-      document.body.style.overflow = "hidden"; // Disable scroll
-    } else {
-      document.body.style.overflow = "auto"; // Enable scroll
-    }
-  }, [expandedCardId]);
-
   // Scroll the carousel
   const scrollLeft = () => {
     if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: -1050, behavior: "smooth" });
+      carouselRef.current.scrollBy({ left: -350, behavior: "smooth" });
     }
   };
   const scrollRight = () => {
     if (carouselRef.current) {
-      carouselRef.current.scrollBy({ left: 1050, behavior: "smooth" });
+      carouselRef.current.scrollBy({ left: 350, behavior: "smooth" });
     }
   };
 
@@ -76,7 +67,7 @@ const HighlightedAchievements = () => {
     <div className="relative bg-black py-8 lg:h-[100vh] flex items-center justify-center">
       {/* Blurred Backdrop (only active if a card is expanded) */}
       <div
-        className={`fixed inset-0 transition-all duration-10000 ${
+        className={`fixed inset-0 transition-all duration-1000 ${
           expandedCardId
             ? "bg-black/70 backdrop-blur-md z-[900] opacity-100"
             : "opacity-0 pointer-events-none"
@@ -90,17 +81,18 @@ const HighlightedAchievements = () => {
         <div className="relative w-full mt-[30px]">
           {/* Carousel Navigation Buttons */}
           <button
-            onClick={scrollLeft}
-            className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 bg-gray-800 text-white p-2 rounded-full shadow-md"
-          >
-            ←
-          </button>
-          <button
-            onClick={scrollRight}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 bg-gray-800 text-white p-2 rounded-full shadow-md"
-          >
-            →
-          </button>
+  onClick={scrollLeft}
+  className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 text-white text-2xl font-bold p-3 bg-gradient-to-b from-gray-700 to-gray-900 hover:from-indigo-500 hover:to-purple-700 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
+>
+  ←
+</button>
+<button
+  onClick={scrollRight}
+  className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 text-white text-2xl font-bold p-3 bg-gradient-to-b from-gray-700 to-gray-900 hover:from-indigo-500 hover:to-purple-700 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
+>
+  →
+</button>
+
 
           {/* Carousel Container */}
           <div
@@ -133,3 +125,4 @@ const HighlightedAchievements = () => {
 };
 
 export default HighlightedAchievements;
+//fine code...

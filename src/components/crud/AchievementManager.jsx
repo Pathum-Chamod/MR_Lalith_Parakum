@@ -36,8 +36,8 @@ const AchievementManager = () => {
       return;
     }
 
-    if (newAchievement.description.length > 220) {
-      alert("Description cannot exceed 220 characters.");
+    if (newAchievement.description.length > 1000) {
+      alert("Description cannot exceed 1000 characters.");
       return;
     }
 
@@ -53,7 +53,7 @@ const AchievementManager = () => {
       // Add to Firestore
       await addDoc(collection(db, "Achievements"), {
         title: newAchievement.title,
-        description: newAchievement.description.slice(0, 220),
+        description: newAchievement.description.slice(0, 1000),
         image: { url: imageUrl, path: storageRef.fullPath },
       });
 
@@ -117,14 +117,14 @@ const AchievementManager = () => {
         // Update Firestore with new image
         await updateDoc(achievementRef, {
           title: editAchievement.title,
-          description: editAchievement.description.slice(0, 220),
+          description: editAchievement.description.slice(0, 1000),
           image: { url: imageUrl, path: storageRef.fullPath },
         });
       } else {
         // Update Firestore without changing the image
         await updateDoc(achievementRef, {
           title: editAchievement.title,
-          description: editAchievement.description.slice(0, 220),
+          description: editAchievement.description.slice(0, 1000),
         });
       }
 
@@ -153,10 +153,10 @@ const AchievementManager = () => {
           onChange={(e) => setNewAchievement({ ...newAchievement, title: e.target.value })}
         />
         <textarea
-          placeholder="Description (max 220 characters)"
+          placeholder="Description (max 1000 characters)"
           className="w-full p-2 rounded bg-gray-700 text-white mb-2"
           value={newAchievement.description}
-          maxLength={220}
+          maxLength={1000}
           onChange={(e) => setNewAchievement({ ...newAchievement, description: e.target.value })}
         />
         <input
