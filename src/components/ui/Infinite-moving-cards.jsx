@@ -13,11 +13,12 @@ export const InfiniteMovingCards = ({
   const containerRef = React.useRef(null);
   const scrollerRef = React.useRef(null);
 
+  const [start, setStart] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(null); // For enlarged photo
+
   useEffect(() => {
     addAnimation();
   }, []);
-
-  const [start, setStart] = useState(false);
 
   function addAnimation() {
     if (containerRef.current && scrollerRef.current) {
@@ -66,6 +67,20 @@ export const InfiniteMovingCards = ({
         className
       )}
     >
+      {/* Modal for Enlarged Photo */}
+      {selectedPhoto && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
+          onClick={() => setSelectedPhoto(null)}
+        >
+          <img
+            src={selectedPhoto}
+            alt="Enlarged"
+            className="max-w-[90%] max-h-[90%] rounded-lg shadow-lg"
+          />
+        </div>
+      )}
+
       {/* Magical Glowing Scrollbar */}
       <style jsx>{`
         .scrollbar-magical::-webkit-scrollbar {
@@ -116,6 +131,12 @@ export const InfiniteMovingCards = ({
           filter: drop-shadow(0 0 10px #facc15) drop-shadow(0 0 20px #fbbf24);
           transition: fill 0.3s, filter 0.3s;
         }
+
+        .photo-hover:hover {
+          transform: scale(1.2) rotate(5deg);
+          filter: drop-shadow(0 0 10px #6ee7b7) drop-shadow(0 0 20px #34d399);
+          transition: all 0.3s ease-in-out;
+        }
       `}</style>
 
       <ul
@@ -161,6 +182,23 @@ export const InfiniteMovingCards = ({
               </span>
             </div>
 
+            {/* Photos Section */}
+            <div className="flex gap-2 mt-4">
+              {item.photos.map((photo, i) => (
+                <div
+                  key={i}
+                  className="h-12 w-12 border border-gray-600 rounded-md cursor-pointer photo-hover"
+                  onClick={() => setSelectedPhoto(photo)}
+                >
+                  <img
+                    src={photo}
+                    alt={`Photo ${i + 1}`}
+                    className="h-full w-full object-cover rounded-md"
+                  />
+                </div>
+              ))}
+            </div>
+
             {/* Rating Bar with Glowing Stars */}
             <div className="mt-4 flex items-center gap-2">
               <div className="flex items-center">
@@ -192,4 +230,3 @@ export const InfiniteMovingCards = ({
     </div>
   );
 };
-//fine code.

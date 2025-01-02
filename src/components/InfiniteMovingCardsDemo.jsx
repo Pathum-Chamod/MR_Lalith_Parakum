@@ -18,6 +18,11 @@ const testimonials = [
     title: "A Tale of Two Cities",
     profileImage: "https://via.placeholder.com/50", // Add the profile image URL
     rating: 8, // Add rating out of 10
+    photos: [
+      "https://via.placeholder.com/50",
+      "https://via.placeholder.com/50",
+      "https://via.placeholder.com/50",
+    ],
   },
   {
     quote:
@@ -26,6 +31,11 @@ const testimonials = [
     title: "Hamlet",
     profileImage: "https://via.placeholder.com/50",
     rating: 9,
+    photos: [
+      "https://via.placeholder.com/50",
+      "https://via.placeholder.com/50",
+      "https://via.placeholder.com/50",
+    ],
   },
   {
     quote: "All that we see or seem is but a dream within a dream.",
@@ -33,6 +43,11 @@ const testimonials = [
     title: "A Dream Within a Dream",
     profileImage: "https://via.placeholder.com/50",
     rating: 7,
+    photos: [
+      "https://via.placeholder.com/50",
+      "https://via.placeholder.com/50",
+      "https://via.placeholder.com/50",
+    ],
   },
   {
     quote:
@@ -41,6 +56,11 @@ const testimonials = [
     title: "Pride and Prejudice",
     profileImage: "https://via.placeholder.com/50",
     rating: 9,
+    photos: [
+      "https://via.placeholder.com/50",
+      "https://via.placeholder.com/50",
+      "https://via.placeholder.com/50",
+    ],
   },
   {
     quote:
@@ -49,5 +69,10 @@ const testimonials = [
     title: "Moby-Dick",
     profileImage: "https://via.placeholder.com/50",
     rating: 8,
+    photos: [
+      "https://via.placeholder.com/50",
+      "https://via.placeholder.com/50",
+      "https://via.placeholder.com/50",
+    ],
   },
 ];
