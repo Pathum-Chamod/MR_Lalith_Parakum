@@ -1,78 +1,56 @@
 "use client";
 
+import { db } from "@/lib/firebase";
+import { collection, getDocs } from "firebase/firestore";
+import { useEffect, useState } from "react";
 import { InfiniteMovingCards } from "./ui/Infinite-moving-cards";
 
 export function InfiniteMovingCardsDemo() {
+  const [reviews, setReviews] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  // ✅ Fetch approved reviews from Firestore
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "ApprovedReviews"));
+        const reviewsData = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setReviews(reviewsData);
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchReviews();
+  }, []);
+
+  // ✅ Loading state while fetching reviews
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-[40rem] bg-gray-100 dark:bg-black text-gray-500">
+        Loading reviews...
+      </div>
+    );
+  }
+
+  // ✅ Check if there are no reviews to display
+  if (reviews.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[40rem] bg-gray-100 dark:bg-black text-gray-500">
+        No approved reviews to display.
+      </div>
+    );
+  }
+
+  // ✅ Render the InfiniteMovingCards component
   return (
     <div className="h-[40rem] rounded-md flex flex-col antialiased bg-white dark:bg-black dark:bg-grid-white/[0.05] items-center justify-center relative overflow-hidden">
-      <InfiniteMovingCards items={testimonials} direction="right" speed="slow" />
+      <InfiniteMovingCards items={reviews} direction="right" speed="slow" />
     </div>
   );
 }
-
-const testimonials = [
-  {
-    quote:
-      "It was the best of times, it was the worst of times, it was the age of wisdom, it was the age of foolishness, it was the epoch of belief, it was the epoch of incredulity, it was the season of Light, it was the season of Darkness, it was the spring of hope, it was the winter of despair.",
-    name: "Charles Dickens",
-    title: "A Tale of Two Cities",
-    profileImage: "https://via.placeholder.com/50", // Add the profile image URL
-    rating: 8, // Add rating out of 10
-    photos: [
-      "https://via.placeholder.com/50",
-      "https://via.placeholder.com/50",
-      "https://via.placeholder.com/50",
-    ],
-  },
-  {
-    quote:
-      "To be, or not to be, that is the question: Whether 'tis nobler in the mind to suffer The slings and arrows of outrageous fortune, Or to take Arms against a Sea of troubles, And by opposing end them: to die, to sleep.",
-    name: "William Shakespeare",
-    title: "Hamlet",
-    profileImage: "https://via.placeholder.com/50",
-    rating: 9,
-    photos: [
-      "https://via.placeholder.com/50",
-      "https://via.placeholder.com/50",
-      "https://via.placeholder.com/50",
-    ],
-  },
-  {
-    quote: "All that we see or seem is but a dream within a dream.",
-    name: "Edgar Allan Poe",
-    title: "A Dream Within a Dream",
-    profileImage: "https://via.placeholder.com/50",
-    rating: 7,
-    photos: [
-      "https://via.placeholder.com/50",
-      "https://via.placeholder.com/50",
-      "https://via.placeholder.com/50",
-    ],
-  },
-  {
-    quote:
-      "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
-    name: "Jane Austen",
-    title: "Pride and Prejudice",
-    profileImage: "https://via.placeholder.com/50",
-    rating: 9,
-    photos: [
-      "https://via.placeholder.com/50",
-      "https://via.placeholder.com/50",
-      "https://via.placeholder.com/50",
-    ],
-  },
-  {
-    quote:
-      "Call me Ishmael. Some years ago—never mind how long precisely—having little or no money in my purse, and nothing particular to interest me on shore, I thought I would sail about a little and see the watery part of the world.",
-    name: "Herman Melville",
-    title: "Moby-Dick",
-    profileImage: "https://via.placeholder.com/50",
-    rating: 8,
-    photos: [
-      "https://via.placeholder.com/50",
-      "https://via.placeholder.com/50",
-      "https://via.placeholder.com/50",
-    ],
-  },
-];

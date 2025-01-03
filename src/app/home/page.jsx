@@ -1,23 +1,23 @@
-import Hero2 from '@/components/Hero2'
-import HeroSection from '@/components/HeroSection'
-import HighlightedAchievements from '@/components/HighlightedAchievements'
-import { InfiniteMovingCardsDemo } from '@/components/InfiniteMovingCardsDemo'
-import ProfileSection from '@/components/ProfileSection'
-//import SuccessStories from '@/components/SuccessStories'
-import React from 'react'
+import Hero2 from '@/components/Hero2';
+import HighlightedAchievements from '@/components/HighlightedAchievements';
+import { InfiniteMovingCardsDemo } from '@/components/InfiniteMovingCardsDemo';
+import ProfileSection from '@/components/ProfileSection';
+import UserReviewForm from '@/components/UserReviewForm'; // Import the new component
+//import SuccessStories from '@/components/SuccessStories';
+
 
 const HomePage = () => {
   return (
-<div>
-  {/* <HeroSection /> */}
-  <Hero2 />
-  <ProfileSection />
-  <HighlightedAchievements />
-{/*  <SuccessStories   />  */}
+    <div>
+      {/* <HeroSection /> */}
+      <Hero2 />
+      <ProfileSection />
+      <HighlightedAchievements />
+      {/* <SuccessStories /> */}
+      <InfiniteMovingCardsDemo />
+     <UserReviewForm /> {/* Add the new UserReviewSection */}
+    </div>
+  );
+};
 
-  <InfiniteMovingCardsDemo />
-</div>
-  )
-}
-
-export default HomePage
+export default HomePage;
