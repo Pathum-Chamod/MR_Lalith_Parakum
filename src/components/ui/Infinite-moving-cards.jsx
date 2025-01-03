@@ -15,7 +15,7 @@ export const InfiniteMovingCards = ({
   const containerRef = React.useRef(null);
   const scrollerRef = React.useRef(null);
   const [start, setStart] = useState(false);
-  const [selectedPhoto, setSelectedPhoto] = useState(null); // For enlarged photo
+  const [selectedPhoto, setSelectedPhoto] = useState(null); // ✅ For enlarged photo modal
 
   // ✅ Fetch approved reviews from Firestore
   useEffect(() => {
@@ -96,17 +96,29 @@ export const InfiniteMovingCards = ({
     >
       {/* ✅ Modal for Enlarged Photo */}
       {selectedPhoto && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80"
-          onClick={() => setSelectedPhoto(null)}
-        >
-          <img
-            src={selectedPhoto}
-            alt="Enlarged"
-            className="max-w-[90%] max-h-[90%] rounded-lg shadow-lg"
-          />
-        </div>
-      )}
+  <div
+    className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90"
+    onClick={() => setSelectedPhoto(null)}
+  >
+    <div className="relative">
+      {/* Image in full resolution */}
+      <img
+        src={selectedPhoto}
+        alt="Enlarged"
+        className="max-w-full max-h-screen rounded-lg object-contain"
+      />
+
+      {/* Close button */}
+      <button
+        className="absolute top-4 right-4 text-white text-4xl font-bold bg-black bg-opacity-50 p-2 rounded-full hover:bg-opacity-80"
+        onClick={() => setSelectedPhoto(null)}
+      >
+        ✕
+      </button>
+    </div>
+  </div>
+)}
+
 
       {/* ✅ Scrollable Cards */}
       <ul
