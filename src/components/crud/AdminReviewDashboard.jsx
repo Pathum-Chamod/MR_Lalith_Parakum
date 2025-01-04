@@ -12,31 +12,68 @@ import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 
 const AdminReviewDashboard = () => {
-  const [reviews, setReviews] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [pendingReviews, setPendingReviews] = useState([]);
+  const [approvedReviews, setApprovedReviews] = useState([]);
+  const [loadingPending, setLoadingPending] = useState(true);
+  const [loadingApproved, setLoadingApproved] = useState(true);
 
-  // Fetch pending reviews from Firestore
+  // -----------------------------------
+  // 1) Fetch PENDING reviews
+  // -----------------------------------
   useEffect(() => {
-    const fetchReviews = async () => {
+    const fetchPendingReviews = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "PendingReviews"));
         const fetchedReviews = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         }));
-        setReviews(fetchedReviews);
+        setPendingReviews(fetchedReviews);
       } catch (error) {
-        Swal.fire("Error!", "Failed to fetch reviews. Please try again later.", "error");
-        console.error("Error fetching reviews:", error);
+        Swal.fire(
+          "Error!",
+          "Failed to fetch pending reviews. Please try again later.",
+          "error"
+        );
+        console.error("Error fetching pending reviews:", error);
       } finally {
-        setLoading(false);
+        setLoadingPending(false);
       }
     };
 
-    fetchReviews();
+    fetchPendingReviews();
   }, []);
 
-  // Handle approving a review
+  // -----------------------------------
+  // 2) Fetch APPROVED reviews
+  // -----------------------------------
+  useEffect(() => {
+    const fetchApprovedReviews = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "ApprovedReviews"));
+        const fetchedApproved = querySnapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setApprovedReviews(fetchedApproved);
+      } catch (error) {
+        Swal.fire(
+          "Error!",
+          "Failed to fetch approved reviews. Please try again later.",
+          "error"
+        );
+        console.error("Error fetching approved reviews:", error);
+      } finally {
+        setLoadingApproved(false);
+      }
+    };
+
+    fetchApprovedReviews();
+  }, []);
+
+  // -----------------------------------
+  // 3) Approve a Pending review
+  // -----------------------------------
   const handleApprove = async (review) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -50,30 +87,44 @@ const AdminReviewDashboard = () => {
 
     if (result.isConfirmed) {
       try {
-        // Move the review to ApprovedReviews
+        // Move the review from PENDING to APPROVED with isHidden = false by default
         const approvedReviewRef = doc(collection(db, "ApprovedReviews"), review.id);
-        await setDoc(approvedReviewRef, { ...review, status: "approved" });
+        await setDoc(approvedReviewRef, {
+          ...review,
+          status: "approved",
+          isHidden: false, // Ensure new approved reviews are visible
+        });
 
-        // Delete the review from PendingReviews
+        // Remove from "PendingReviews"
         const pendingReviewRef = doc(db, "PendingReviews", review.id);
         await deleteDoc(pendingReviewRef);
 
-        // Update the local state
-        setReviews((prev) => prev.filter((r) => r.id !== review.id));
+        // Update local states
+        setPendingReviews((prev) => prev.filter((r) => r.id !== review.id));
+        setApprovedReviews((prev) => [
+          ...prev,
+          { ...review, status: "approved", isHidden: false },
+        ]);
 
         Swal.fire(
           "Approved!",
-          "The review has been approved and moved to the ApprovedReviews collection.",
+          "The review has been moved to the ApprovedReviews collection.",
           "success"
         );
       } catch (error) {
-        Swal.fire("Error!", "There was an error approving the review. Please try again.", "error");
+        Swal.fire(
+          "Error!",
+          "There was an error approving the review. Please try again.",
+          "error"
+        );
         console.error("Error approving review:", error);
       }
     }
   };
 
-  // Handle declining a review
+  // -----------------------------------
+  // 4) Decline a Pending review
+  // -----------------------------------
   const handleDecline = async (id) => {
     const result = await Swal.fire({
       title: "Are you sure?",
@@ -87,75 +138,245 @@ const AdminReviewDashboard = () => {
 
     if (result.isConfirmed) {
       try {
-        // Delete the review from PendingReviews
+        // Remove from "PendingReviews"
         await deleteDoc(doc(db, "PendingReviews", id));
 
-        // Update the local state
-        setReviews((prev) => prev.filter((r) => r.id !== id));
-
+        setPendingReviews((prev) => prev.filter((r) => r.id !== id));
         Swal.fire("Declined!", "The review has been declined.", "success");
       } catch (error) {
-        Swal.fire("Error!", "There was an error declining the review. Please try again.", "error");
+        Swal.fire(
+          "Error!",
+          "There was an error declining the review. Please try again.",
+          "error"
+        );
         console.error("Error declining review:", error);
       }
     }
   };
 
+  // -----------------------------------
+  // 5) DELETE an Approved review
+  // -----------------------------------
+  const handleDeleteApproved = async (id) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "This will delete the review from ApprovedReviews (and hide it on the homepage).",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      try {
+        // Remove from "ApprovedReviews"
+        await deleteDoc(doc(db, "ApprovedReviews", id));
+
+        // Update local state so UI refreshes
+        setApprovedReviews((prev) => prev.filter((r) => r.id !== id));
+
+        Swal.fire(
+          "Deleted!",
+          "The review has been deleted from ApprovedReviews.",
+          "success"
+        );
+      } catch (error) {
+        Swal.fire(
+          "Error!",
+          "There was an error deleting the review. Please try again.",
+          "error"
+        );
+        console.error("Error deleting approved review:", error);
+      }
+    }
+  };
+
+  // -----------------------------------
+  // 6) TOGGLE Hide/Show an Approved review
+  // -----------------------------------
+  const handleToggleHidden = async (review) => {
+    try {
+      const newIsHidden = !review.isHidden;
+
+      // Update Firestore doc to flip isHidden
+      await setDoc(
+        doc(db, "ApprovedReviews", review.id),
+        { isHidden: newIsHidden },
+        { merge: true }
+      );
+
+      // Update local state
+      setApprovedReviews((prev) =>
+        prev.map((r) => (r.id === review.id ? { ...r, isHidden: newIsHidden } : r))
+      );
+
+      Swal.fire(
+        newIsHidden ? "Hidden!" : "Visible!",
+        `This review is now ${newIsHidden ? "hidden" : "visible"} on the homepage.`,
+        "success"
+      );
+    } catch (error) {
+      Swal.fire(
+        "Error!",
+        "Failed to toggle hide/show status. Please try again.",
+        "error"
+      );
+      console.error("Error toggling hide/show:", error);
+    }
+  };
+
+  // -----------------------------------
+  // UI
+  // -----------------------------------
   return (
-    <div className="p-6 bg-gray-100 min-h-screen">
-      <h2 className="text-3xl font-bold mb-6 text-center">Pending Reviews Dashboard</h2>
+    <div className="min-h-screen bg-gradient-to-b from-gray-900 via-black to-gray-900 p-6 text-gray-100">
+      <h2 className="text-4xl font-extrabold mb-10 text-center text-gray-100 tracking-wide">
+        Admin Reviews Dashboard
+      </h2>
 
-      {loading ? (
-        <p className="text-center text-gray-500">Loading reviews...</p>
-      ) : reviews.length === 0 ? (
-        <p className="text-center text-gray-500">No pending reviews at the moment.</p>
-      ) : (
-        <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-          {reviews.map((review) => (
-            <div
-              key={review.id}
-              className="p-4 bg-white shadow-lg rounded-lg border border-gray-200"
-            >
-              <div className="mb-4">
-                <h3 className="text-xl font-semibold text-gray-800">{review.name}</h3>
-                <p className="italic text-gray-600 mt-2">"{review.quote}"</p>
-                <p className="text-yellow-500 mt-2">Rating: {review.rating}/10</p>
-              </div>
+      {/* =========================
+          Pending Reviews Section
+          ========================= */}
+      <section className="mb-16">
+        <h3 className="text-3xl font-semibold mb-6 text-center text-indigo-300">
+          Pending Reviews
+        </h3>
 
-              {/* Review Photos */}
-              {review.photos && review.photos.length > 0 && (
-                <div className="flex gap-2 mt-4">
-                  {review.photos.map((photo, index) => (
-                    <img
-                      key={index}
-                      src={photo}
-                      alt={`Review Photo ${index + 1}`}
-                      className="w-16 h-16 object-cover rounded-md border"
-                    />
-                  ))}
+        {loadingPending ? (
+          <p className="text-center text-gray-400">Loading pending reviews...</p>
+        ) : pendingReviews.length === 0 ? (
+          <p className="text-center text-gray-400">No pending reviews at the moment.</p>
+        ) : (
+          <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
+            {pendingReviews.map((review) => (
+              <div
+                key={review.id}
+                className="p-5 rounded-lg border border-gray-700 bg-[#1f1f1f] shadow-md hover:shadow-xl transition-shadow"
+              >
+                <div className="mb-4">
+                  <h4 className="text-2xl font-bold text-gray-100 tracking-wide">
+                    {review.name}
+                  </h4>
+                  <p className="italic text-gray-400 mt-2">
+                    &quot;{review.quote}&quot;
+                  </p>
+                  <p className="text-yellow-300 mt-2 font-medium">
+                    Rating: {review.rating}/10
+                  </p>
                 </div>
-              )}
 
-              <div className="flex gap-4 mt-4">
+                {/* Review Photos */}
+                {review.photos && review.photos.length > 0 && (
+                  <div className="flex gap-2 mt-4 flex-wrap">
+                    {review.photos.map((photo, index) => (
+                      <img
+                        key={index}
+                        src={photo}
+                        alt={`Review Photo ${index + 1}`}
+                        className="w-16 h-16 object-cover rounded-md border border-gray-700 hover:opacity-90 transition"
+                      />
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex gap-4 mt-4">
+                  <button
+                    className="flex-1 py-2 bg-green-600 hover:bg-green-500 transition text-white rounded font-semibold"
+                    onClick={() => handleApprove(review)}
+                  >
+                    Approve
+                  </button>
+                  <button
+                    className="flex-1 py-2 bg-red-600 hover:bg-red-500 transition text-white rounded font-semibold"
+                    onClick={() => handleDecline(review.id)}
+                  >
+                    Decline
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* =========================
+          Approved Reviews Section
+          ========================= */}
+      <section>
+        <h3 className="text-3xl font-semibold mb-6 text-center text-green-400">
+          Approved Reviews
+        </h3>
+
+        {loadingApproved ? (
+          <p className="text-center text-gray-400">Loading approved reviews...</p>
+        ) : approvedReviews.length === 0 ? (
+          <p className="text-center text-gray-400">No approved reviews found.</p>
+        ) : (
+          <div className="grid gap-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
+            {approvedReviews.map((review) => (
+              <div
+                key={review.id}
+                className="p-5 rounded-lg border border-gray-700 bg-[#1f1f1f] shadow-md hover:shadow-xl transition-shadow"
+              >
+                <div className="mb-4">
+                  <h4 className="text-2xl font-bold text-gray-100 tracking-wide">
+                    {review.name}
+                  </h4>
+                  <p className="italic text-gray-400 mt-2">
+                    &quot;{review.quote}&quot;
+                  </p>
+                  <p className="text-yellow-300 mt-2 font-medium">
+                    Rating: {review.rating}/10
+                  </p>
+                </div>
+
+                {/* Review Photos */}
+                {review.photos && review.photos.length > 0 && (
+                  <div className="flex gap-2 mt-4 flex-wrap">
+                    {review.photos.map((photo, index) => (
+                      <img
+                        key={index}
+                        src={photo}
+                        alt={`Review Photo ${index + 1}`}
+                        className="w-16 h-16 object-cover rounded-md border border-gray-700 hover:opacity-90 transition"
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Hide/Show button */}
+                {review.isHidden ? (
+                  <button
+                    className="w-full py-2 mt-4 bg-blue-600 hover:bg-blue-500 transition text-white rounded font-semibold"
+                    onClick={() => handleToggleHidden(review)}
+                  >
+                    Show
+                  </button>
+                ) : (
+                  <button
+                    className="w-full py-2 mt-4 bg-gray-600 hover:bg-gray-500 transition text-white rounded font-semibold"
+                    onClick={() => handleToggleHidden(review)}
+                  >
+                    Hide
+                  </button>
+                )}
+
+                {/* Delete button */}
                 <button
-                  className="flex-1 p-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
-                  onClick={() => handleApprove(review)}
+                  className="w-full py-2 mt-2 bg-red-600 hover:bg-red-500 transition text-white rounded font-semibold"
+                  onClick={() => handleDeleteApproved(review.id)}
                 >
-                  Approve
-                </button>
-                <button
-                  className="flex-1 p-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-                  onClick={() => handleDecline(review.id)}
-                >
-                  Decline
+                  Delete
                 </button>
               </div>
-            </div>
-          ))}
-        </div>
-      )}
+            ))}
+          </div>
+        )}
+      </section>
     </div>
   );
 };
 
 export default AdminReviewDashboard;
+//fine code!
