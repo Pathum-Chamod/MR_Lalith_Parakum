@@ -1,3 +1,5 @@
+// src/components/UserReviewForm.jsx
+
 "use client";
 
 import { db, storage } from "@/lib/firebase";
@@ -6,7 +8,15 @@ import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { useState } from "react";
 import Swal from "sweetalert2";
 
+// Import Custom Components
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+
+// Import utility functions
+
 const UserReviewForm = () => {
+  const MAX_QUOTE_LENGTH = 320;
+
   const [formData, setFormData] = useState({
     name: "",
     title: "",
@@ -24,7 +34,25 @@ const UserReviewForm = () => {
   // ----------------------
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    // If the field is 'quote', enforce the max length and remove line breaks
+    if (name === "quote") {
+      // Remove line breaks
+      const sanitizedValue = value.replace(/(\r\n|\n|\r)/gm, " ");
+
+      if (sanitizedValue.length <= MAX_QUOTE_LENGTH) {
+        setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
+      } else {
+        // Optionally, you can show a warning or simply prevent further input
+        Swal.fire({
+          icon: "warning",
+          title: "Character Limit Reached",
+          text: `You can only enter up to ${MAX_QUOTE_LENGTH} characters.`,
+        });
+      }
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   // ----------------------
@@ -86,6 +114,17 @@ const UserReviewForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    // Additional validation to ensure quote length
+    if (formData.quote.length > MAX_QUOTE_LENGTH) {
+      Swal.fire({
+        icon: "error",
+        title: "Quote Too Long",
+        text: `Your quote exceeds the maximum length of ${MAX_QUOTE_LENGTH} characters.`,
+      });
+      setLoading(false);
+      return;
+    }
 
     try {
       // 1) Upload photos (if any)
@@ -150,13 +189,21 @@ const UserReviewForm = () => {
     }
   };
 
+  // ----------------------
+  // Handle Key Down for Quote Field
+  // ----------------------
+  const handleQuoteKeyDown = (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault(); // Prevent adding a new line
+    }
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
-      // Removed mx-auto for left alignment
       className="w-full max-w-md m-6 p-6 rounded-lg shadow-md text-gray-100
-        bg-white/10 border border-white/20 backdrop-blur-sm 
-        transition-all duration-300 hover:shadow-xl"
+                 bg-white/10 border border-white/20 backdrop-blur-sm 
+                 transition-all duration-300 hover:shadow-xl"
       style={{
         // fallback for older browsers
         backgroundColor: "rgba(255, 255, 255, 0.1)",
@@ -169,58 +216,64 @@ const UserReviewForm = () => {
 
       {/* Name Field */}
       <div className="mb-4">
-        <label className="block text-sm font-semibold mb-1" htmlFor="name">
+        <Label htmlFor="name" className="block text-sm font-semibold mb-1">
           Name:
-        </label>
-        <input
+        </Label>
+        <Input
           id="name"
-          type="text"
           name="name"
+          type="text"
           value={formData.name}
           onChange={handleInputChange}
-          className="w-full p-2 bg-transparent border border-gray-500 rounded 
-            focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
           required
+          className="w-full"
         />
       </div>
 
       {/* Title Field */}
       <div className="mb-4">
-        <label className="block text-sm font-semibold mb-1" htmlFor="title">
+        <Label htmlFor="title" className="block text-sm font-semibold mb-1">
           Title:
-        </label>
-        <input
+        </Label>
+        <Input
           id="title"
-          type="text"
           name="title"
+          type="text"
           value={formData.title}
           onChange={handleInputChange}
-          className="w-full p-2 bg-transparent border border-gray-500 rounded 
-            focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+          className="w-full"
         />
       </div>
 
       {/* Quote Field */}
       <div className="mb-4">
-        <label className="block text-sm font-semibold mb-1" htmlFor="quote">
+        <Label htmlFor="quote" className="block text-sm font-semibold mb-1">
           Quote:
-        </label>
+        </Label>
         <textarea
           id="quote"
           name="quote"
           value={formData.quote}
           onChange={handleInputChange}
+          onKeyDown={handleQuoteKeyDown}
           className="w-full p-2 bg-transparent border border-gray-500 rounded 
-            focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                     focus:outline-none focus:ring-2 focus:ring-blue-500 transition
+                     resize-none"
           required
+          maxLength={MAX_QUOTE_LENGTH}
+          rows={3}
+          placeholder="Enter your review here..."
         ></textarea>
+        <p className="text-sm text-gray-200 mt-1 text-right">
+          {formData.quote.length}/{MAX_QUOTE_LENGTH} characters
+        </p>
       </div>
 
       {/* Rating Field as Stars (1-10) */}
       <div className="mb-4">
-        <label className="block text-sm font-semibold mb-1">
+        <Label className="block text-sm font-semibold mb-1">
           Rating (1-10):
-        </label>
+        </Label>
         <div className="flex items-center space-x-1 mt-1">
           {Array.from({ length: 10 }, (_, i) => i + 1).map((starValue) => (
             <svg
@@ -246,11 +299,11 @@ const UserReviewForm = () => {
 
       {/* Profile Image Field */}
       <div className="mb-4">
-        <label className="block text-sm font-semibold mb-1">
+        <Label className="block text-sm font-semibold mb-1">
           Profile Image:
-        </label>
+        </Label>
         {!formData.profileImage ? (
-          <input
+          <Input
             type="file"
             accept="image/*"
             onChange={handleProfileImageChange}
@@ -269,7 +322,7 @@ const UserReviewForm = () => {
               type="button"
               onClick={removeProfileImage}
               className="absolute top-0 right-0 bg-red-600 text-white rounded-full text-xs px-1 
-                hover:bg-red-700 transition"
+                         hover:bg-red-700 transition"
             >
               ✕
             </button>
@@ -279,10 +332,10 @@ const UserReviewForm = () => {
 
       {/* Upload Photos Field (up to 3) */}
       <div className="mb-4">
-        <label className="block text-sm font-semibold mb-1">
+        <Label className="block text-sm font-semibold mb-1">
           Upload Photos (up to 3):
-        </label>
-        <input
+        </Label>
+        <Input
           type="file"
           multiple
           onChange={handlePhotoChange}
@@ -305,7 +358,7 @@ const UserReviewForm = () => {
                 type="button"
                 onClick={() => removePhoto(index)}
                 className="absolute top-0 right-0 bg-red-600 text-white 
-                  rounded-full text-xs px-1 hover:bg-red-700 transition"
+                           rounded-full text-xs px-1 hover:bg-red-700 transition"
               >
                 ✕
               </button>
@@ -319,9 +372,9 @@ const UserReviewForm = () => {
         <button
           type="submit"
           className={`w-full py-2 px-4 bg-blue-500 text-white rounded font-bold 
-            transition-all duration-200 hover:bg-blue-600 hover:scale-[1.02] ${
-              loading ? "opacity-50 cursor-not-allowed" : ""
-            }`}
+                     transition-all duration-200 hover:bg-blue-600 hover:scale-[1.02] ${
+                       loading ? "opacity-50 cursor-not-allowed" : ""
+                     }`}
           disabled={loading}
         >
           {loading ? "Submitting..." : "Submit Review"}
@@ -332,4 +385,4 @@ const UserReviewForm = () => {
 };
 
 export default UserReviewForm;
-//fine code!
+//fine and styled forum!
