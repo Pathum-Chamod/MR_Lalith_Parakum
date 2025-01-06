@@ -11,81 +11,82 @@ export function InfiniteMovingCards({
   className,
 }) {
   const containerRef = useRef(null);
-  const scrollerRef = useRef(null);
+
+  // Whether to start the scrolling animation
   const [start, setStart] = useState(false);
+
+  // We store the "doubled" items to create the infinite effect
+  const [doubledItems, setDoubledItems] = useState([]);
 
   // -- Lightbox modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalPhotos, setModalPhotos] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  // ---- Duplicate cards for infinite effect
+  // ------------------------
+  // Double the items in React
+  // ------------------------
   useEffect(() => {
     if (items.length > 0) {
-      addAnimation();
+      // create a new array containing two copies of `items`
+      setDoubledItems([...items, ...items]);
+      setStart(true);
+    } else {
+      setDoubledItems([]);
+      setStart(false);
     }
   }, [items]);
 
-  function addAnimation() {
-    if (containerRef.current && scrollerRef.current) {
-      const scrollerContent = Array.from(scrollerRef.current.children);
+  // ------------------------
+  // Set the scrolling speed/direction via CSS variables
+  // ------------------------
+  useEffect(() => {
+    if (!containerRef.current) return;
 
-      // Clone each card once so it scrolls seamlessly
-      scrollerContent.forEach((item) => {
-        const duplicated = item.cloneNode(true);
-        scrollerRef.current.appendChild(duplicated);
-      });
-
-      setDirection();
-      setSpeed();
-      setStart(true);
+    // Set --animation-duration
+    let duration;
+    switch (speed) {
+      case "fast":
+        duration = "20s";
+        break;
+      case "normal":
+        duration = "40s";
+        break;
+      case "slow":
+        duration = "80s";
+        break;
+      default:
+        duration = "40s";
     }
-  }
+    containerRef.current.style.setProperty("--animation-duration", duration);
 
-  function setDirection() {
-    if (containerRef.current) {
-      containerRef.current.style.setProperty(
-        "--animation-direction",
-        direction === "left" ? "forwards" : "reverse"
-      );
-    }
-  }
+    // Set --animation-direction
+    containerRef.current.style.setProperty(
+      "--animation-direction",
+      direction === "left" ? "forwards" : "reverse"
+    );
+  }, [direction, speed]);
 
-  function setSpeed() {
-    if (containerRef.current) {
-      let duration;
-      switch (speed) {
-        case "fast":
-          duration = "20s";
-          break;
-        case "normal":
-          duration = "40s";
-          break;
-        case "slow":
-          duration = "80s";
-          break;
-        default:
-          duration = "40s";
-      }
-      containerRef.current.style.setProperty("--animation-duration", duration);
-    }
-  }
-
-  // ---- Modal controls
+  // ------------------------
+  // Lightbox / Modal controls
+  // ------------------------
   const openModal = (photos, index) => {
     setModalPhotos(photos);
     setCurrentIndex(index);
     setIsModalOpen(true);
   };
+
   const closeModal = () => {
     setIsModalOpen(false);
     setModalPhotos([]);
     setCurrentIndex(0);
   };
+
   const goNext = (e) => {
     e.stopPropagation(); // prevents closing the modal
     setCurrentIndex((prev) => (prev + 1) % modalPhotos.length);
   };
+
   const goPrev = (e) => {
     e.stopPropagation();
     setCurrentIndex((prev) =>
@@ -97,11 +98,14 @@ export function InfiniteMovingCards({
     <div
       ref={containerRef}
       className={cn(
-        "scroller relative z-10 max-w-7xl overflow-x-scroll scrollbar-magical [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]",
+        // "scroller" triggers the CSS keyframes for infinite scrolling
+        "scroller relative z-10 max-w-7xl overflow-x-scroll scrollbar-magical",
+        // mask-image to fade the left and right edges
+        "[mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]",
         className
       )}
     >
-      {/* 
+      {/*
         ==========================
         MODAL / LIGHTBOX OVERLAY
         ==========================
@@ -130,7 +134,7 @@ export function InfiniteMovingCards({
               ✕
             </button>
 
-            {/* Prev / Next if >1 photo */}
+            {/* Prev / Next if more than one photo */}
             {modalPhotos.length > 1 && (
               <>
                 <button
@@ -151,7 +155,7 @@ export function InfiniteMovingCards({
         </div>
       )}
 
-      {/* 
+      {/*
         ==========================
         Magical Glowing Scrollbar
         ==========================
@@ -194,6 +198,29 @@ export function InfiniteMovingCards({
           }
         }
 
+        /* 
+          "scroller" sets up the infinite animation.
+          We rely on --animation-duration & --animation-direction
+          from the JavaScript above.
+        */
+       
+        .scroller {
+          animation: scroll var(--animation-duration) linear infinite;
+          animation-play-state: running;
+          animation-direction: var(--animation-direction);
+        }
+
+        /* The actual keyframes for the scrolling effect */
+        @keyframes scroll {
+          0% {
+            transform: translate3d(0, 0, 0);
+          }
+          100% {
+            /* Adjust the translateX for how wide your scroller content is */
+            transform: translate3d(-50%, 0, 0);
+          }
+        }
+
         .card-hover:hover {
           box-shadow: 0 0 15px #a855f7, 0 0 25px #ec4899;
           transform: scale(1.05);
@@ -211,22 +238,25 @@ export function InfiniteMovingCards({
         }
       `}</style>
 
-      {/* 
+      {/*
         ==========================
         Scrollable Cards
         ==========================
       */}
       <ul
-        ref={scrollerRef}
         className={cn(
           "flex min-w-full shrink-0 gap-4 py-4 w-max flex-nowrap",
           start && "animate-scroll",
           pauseOnHover && "hover:[animation-play-state:paused]"
         )}
       >
-        {items.map((item, idx) => (
+        {/* 
+          Map over doubledItems 
+          so we have a seamless repeating list
+        */}
+        {doubledItems.map((item, idx) => (
           <li
-            key={item.id || idx}
+            key={item.id ? `${item.id}-${idx}` : idx}
             className="relative w-[200px] max-w-full rounded-2xl border border-b-0 flex-shrink-0 border-slate-700 px-6 py-8 md:w-[450px] flex flex-col items-center card-hover"
             style={{
               background:
@@ -311,5 +341,3 @@ export function InfiniteMovingCards({
     </div>
   );
 }
-//final
-
