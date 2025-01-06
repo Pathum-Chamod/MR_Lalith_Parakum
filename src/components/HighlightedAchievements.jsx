@@ -29,12 +29,13 @@ const HighlightedAchievements = () => {
     fetchAchievements();
   }, []);
 
-  // Scroll the carousel
+  // Scroll the carousel programmatically
   const scrollLeft = () => {
     if (carouselRef.current) {
       carouselRef.current.scrollBy({ left: -350, behavior: "smooth" });
     }
   };
+
   const scrollRight = () => {
     if (carouselRef.current) {
       carouselRef.current.scrollBy({ left: 350, behavior: "smooth" });
@@ -74,10 +75,11 @@ const HighlightedAchievements = () => {
         }`}
       />
 
-      {/* Main container (carousel) */}
-      <div className="max-w-[1280px] flex flex-col items-center mx-auto py-5 relative z-[1000] h-full">
+      {/* Outer container filling the viewport (lg:h-[100vh]) */}
+      <div className="max-w-[1280px] w-full flex flex-col items-center mx-auto py-5 relative z-[1000] h-full">
         <CustomTitle text="Highlights and Achievements" />
 
+        {/* This wrapper takes remaining height */}
         <div className="relative w-full mt-8 h-full">
           {/* Carousel Navigation Buttons */}
           <button
@@ -96,19 +98,17 @@ const HighlightedAchievements = () => {
           {/* Carousel Container */}
           <div
             ref={carouselRef}
-            className="flex gap-5 w-full overflow-x-auto py-4 h-full scrollbar-hide"
+            // Add scroll-smooth for CSS-based smooth scrolling
+            className="scroll-smooth flex gap-5 w-full overflow-x-hidden py-4 h-full"
           >
             {achievements.map((achievement, index) => (
-              <div key={achievement.id} className="flex-shrink-0 w-full md:w-1/2 lg:w-1/3">
+              <div key={achievement.id} className="flex-shrink-0">
                 <AchievementCards
                   title={achievement.title}
                   description={achievement.description}
-                  // Important: pass the correct image prop
                   imageUrl={achievement.image?.url}
-                  // Check if this card is expanded
                   isExpanded={expandedCardId === achievement.id}
                   onToggleExpand={() => toggleExpand(achievement.id)}
-                  // Pass next/prev for navigation
                   onNext={handleExpandNext}
                   onPrev={handleExpandPrev}
                   isFirst={index === 0}
