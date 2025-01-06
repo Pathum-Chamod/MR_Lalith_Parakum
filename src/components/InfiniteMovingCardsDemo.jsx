@@ -1,5 +1,3 @@
-// src/components/InfiniteMovingCardsDemo.jsx
-
 "use client";
 
 import { db } from "@/lib/firebase";
@@ -55,7 +53,7 @@ export function InfiniteMovingCardsDemo() {
   }
 
   return (
-    <div className="relative bg-black py-8 flex flex-col items-center justify-center">
+    <div className="relative bg-black py-8 lg:h-[100vh] flex flex-col items-center justify-center">
       {/* Title */}
       <CustomTitle text="Students Reviews and Ratings" />
 
@@ -66,5 +64,3 @@ export function InfiniteMovingCardsDemo() {
     </div>
   );
 }
-
-// Finalized

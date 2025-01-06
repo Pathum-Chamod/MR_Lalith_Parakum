@@ -5,7 +5,6 @@ import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import AchievementCards from "./AchievementCards";
 import CustomTitle from "./CustomTitle";
-import { TracingBeam } from "./ui/TracingBeam"; // Adjust the import path as necessary
 
 const HighlightedAchievements = () => {
   const [achievements, setAchievements] = useState([]);
@@ -79,30 +78,27 @@ const HighlightedAchievements = () => {
       <div className="max-w-[1280px] w-full flex flex-col items-center mx-auto py-5 relative z-[1000] h-full">
         <CustomTitle text="Highlights and Achievements" />
 
-        {/* Carousel Wrapper with TracingBeam */}
-        <TracingBeam className="relative w-full mt-8 h-full">
-          {/* Carousel Container */}
-          <div
-            ref={carouselRef}
-            className="scroll-smooth flex gap-5 w-full overflow-x-scroll py-4 h-full hide-scrollbar"
-          >
-            {achievements.map((achievement, index) => (
-              <div key={achievement.id} className="flex-shrink-0 w-1/3">
-                <AchievementCards
-                  title={achievement.title}
-                  description={achievement.description}
-                  imageUrl={achievement.image?.url}
-                  isExpanded={expandedCardId === achievement.id}
-                  onToggleExpand={() => toggleExpand(achievement.id)}
-                  onNext={handleExpandNext}
-                  onPrev={handleExpandPrev}
-                  isFirst={index === 0}
-                  isLast={index === achievements.length - 1}
-                />
-              </div>
-            ))}
-          </div>
-        </TracingBeam>
+        {/* Carousel Container with custom scrollbar */}
+        <div
+          ref={carouselRef}
+          className="scroll-smooth flex gap-5 w-full overflow-x-scroll py-4 h-full hide-scrollbar"
+        >
+          {achievements.map((achievement, index) => (
+            <div key={achievement.id} className="flex-shrink-0 w-1/3">
+              <AchievementCards
+                title={achievement.title}
+                description={achievement.description}
+                imageUrl={achievement.image?.url}
+                isExpanded={expandedCardId === achievement.id}
+                onToggleExpand={() => toggleExpand(achievement.id)}
+                onNext={handleExpandNext}
+                onPrev={handleExpandPrev}
+                isFirst={index === 0}
+                isLast={index === achievements.length - 1}
+              />
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -279,208 +279,210 @@ const UserReviewForm = () => {
   };
 
   return (
-    <BackgroundGradient className="w-full flex justify-center">
-      <form
-        onSubmit={handleSubmit}
-        className={cn(
-          "w-full max-w-md m-6 p-6 rounded-lg shadow-md text-gray-100 bg-white/10 border border-white/20 backdrop-blur-sm transition-all duration-300 hover:shadow-xl",
-          "relative z-10"
-        )}
-        style={{
-          // Fallback for older browsers
-          backgroundColor: "rgba(255, 255, 255, 0.1)",
-          backdropFilter: "blur(8px)",
-        }}
-      >
-        <h2 className="text-2xl font-extrabold mb-6 tracking-wider text-center uppercase">
-          Submit a Review
-        </h2>
-
-        {/* Name Field */}
-        <div className="mb-4">
-          <Label htmlFor="name" className="block text-sm font-semibold mb-1">
-            Name:
-          </Label>
-          <Input
-            id="name"
-            name="name"
-            type="text"
-            value={formData.name}
-            onChange={handleInputChange}
-            required
-            className="w-full"
-          />
-        </div>
-
-        {/* Title Field */}
-        <div className="mb-4">
-          <Label htmlFor="title" className="block text-sm font-semibold mb-1">
-            Title:
-          </Label>
-          <Input
-            id="title"
-            name="title"
-            type="text"
-            value={formData.title}
-            onChange={handleInputChange}
-            className="w-full"
-          />
-        </div>
-
-        {/* Quote Field */}
-        <div className="mb-4">
-          <Label htmlFor="quote" className="block text-sm font-semibold mb-1">
-            Quote:
-          </Label>
-          <textarea
-            id="quote"
-            name="quote"
-            value={formData.quote}
-            onChange={handleInputChange}
-            onKeyDown={handleQuoteKeyDown}
-            className="w-full p-2 bg-transparent border border-gray-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
-            required
-            maxLength={MAX_QUOTE_LENGTH}
-            rows={3}
-            placeholder="Enter your review here..."
-          ></textarea>
-          <p className="text-sm text-gray-200 mt-1 text-right">
-            {formData.quote.length}/{MAX_QUOTE_LENGTH} characters
-          </p>
-        </div>
-
-        {/* Rating Field as Stars (1-10) */}
-        <div className="mb-4">
-          <Label className="block text-sm font-semibold mb-1">
-            Rating (1-10):
-          </Label>
-          <div className="flex items-center space-x-1 mt-1">
-            {Array.from({ length: 10 }, (_, i) => i + 1).map((starValue) => (
-              <svg
-                key={starValue}
-                onClick={() => handleStarClick(starValue)}
-                xmlns="http://www.w3.org/2000/svg"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-                className={`h-7 w-7 cursor-pointer transition transform hover:scale-110 ${
-                  starValue <= formData.rating ? "text-yellow-300" : "text-gray-400"
-                }`}
-              >
-                <path d="M9.049 2.927c.3-.921 1.602-.921 1.902 0l1.2 3.684a1 1 0 00.95.69h3.886c.969 0 1.371 1.24.588 1.81l-3.143 2.253a1 1 0 00-.364 1.118l1.2 3.684c.3.921-.755 1.688-1.54 1.118l-3.143-2.253a1 1 0 00-1.176 0l-3.143 2.253c-.785.57-1.84-.197-1.54-1.118l1.2-3.684a1 1 0 00-.364-1.118L2.219 9.111c-.783-.57-.38-1.81.589-1.81h3.886a1 1 0 00.95-.69l1.2-3.684z" />
-              </svg>
-            ))}
-          </div>
-          {formData.rating > 0 && (
-            <p className="text-sm text-gray-200 mt-1">
-              Selected Rating: {formData.rating} / 10
-            </p>
+    // <-- Added container to match ProfileSection's height. 
+    <div className="bg-black py-8 lg:h-[100vh] flex items-center justify-center">
+      <BackgroundGradient className="w-full flex justify-center">
+        <form
+          onSubmit={handleSubmit}
+          className={cn(
+            "w-full max-w-md m-6 p-6 rounded-lg shadow-md text-gray-100 bg-white/10 border border-white/20 backdrop-blur-sm transition-all duration-300 hover:shadow-xl",
+            "relative z-10"
           )}
-        </div>
+          style={{
+            // Fallback for older browsers
+            backgroundColor: "rgba(255, 255, 255, 0.1)",
+            backdropFilter: "blur(8px)",
+          }}
+        >
+          <h2 className="text-2xl font-extrabold mb-6 tracking-wider text-center uppercase">
+            Submit a Review
+          </h2>
 
-        {/* Profile Image Field */}
-        <div className="mb-4">
-          <Label className="block text-sm font-semibold mb-1">
-            Profile Image:
-          </Label>
-          {!formData.profileImage ? (
+          {/* Name Field */}
+          <div className="mb-4">
+            <Label htmlFor="name" className="block text-sm font-semibold mb-1">
+              Name:
+            </Label>
             <Input
-              type="file"
-              accept="image/*"
-              onChange={handleProfileImageChange}
-              className="text-sm text-gray-300 focus:outline-none"
+              id="name"
+              name="name"
+              type="text"
+              value={formData.name}
+              onChange={handleInputChange}
+              required
+              className="w-full"
             />
-          ) : (
-            <div className="relative inline-block mt-2">
-              {/* Preview of the selected Profile Image */}
-              <img
-                src={URL.createObjectURL(formData.profileImage)}
-                alt="Profile Preview"
-                className="h-16 w-16 object-cover rounded-full border border-gray-500"
-              />
-              {/* Remove button */}
-              <button
-                type="button"
-                onClick={removeProfileImage}
-                className="absolute top-0 right-0 bg-red-600 text-white rounded-full text-xs px-1 
-                           hover:bg-red-700 transition"
-              >
-                ✕
-              </button>
-            </div>
-          )}
-        </div>
+          </div>
 
-        {/* Upload Photos Field (up to 3) */}
-        <div className="mb-4">
-          <Label className="block text-sm font-semibold mb-1">
-            Upload Photos (up to 3):
-          </Label>
-          <Input
-            type="file"
-            multiple
-            onChange={handlePhotoChange}
-            accept="image/*"
-            className="text-sm text-gray-300 focus:outline-none"
-          />
-          {/* Thumbnails with remove buttons */}
-          <div className="flex flex-wrap gap-3 mt-3">
-            {photoFiles.map((file, index) => (
-              <div
-                key={index}
-                className="relative transition hover:scale-105 hover:shadow-lg"
-              >
+          {/* Title Field */}
+          <div className="mb-4">
+            <Label htmlFor="title" className="block text-sm font-semibold mb-1">
+              Title:
+            </Label>
+            <Input
+              id="title"
+              name="title"
+              type="text"
+              value={formData.title}
+              onChange={handleInputChange}
+              className="w-full"
+            />
+          </div>
+
+          {/* Quote Field */}
+          <div className="mb-4">
+            <Label htmlFor="quote" className="block text-sm font-semibold mb-1">
+              Quote:
+            </Label>
+            <textarea
+              id="quote"
+              name="quote"
+              value={formData.quote}
+              onChange={handleInputChange}
+              onKeyDown={handleQuoteKeyDown}
+              className="w-full p-2 bg-transparent border border-gray-500 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 transition resize-none"
+              required
+              maxLength={MAX_QUOTE_LENGTH}
+              rows={3}
+              placeholder="Enter your review here..."
+            ></textarea>
+            <p className="text-sm text-gray-200 mt-1 text-right">
+              {formData.quote.length}/{MAX_QUOTE_LENGTH} characters
+            </p>
+          </div>
+
+          {/* Rating Field as Stars (1-10) */}
+          <div className="mb-4">
+            <Label className="block text-sm font-semibold mb-1">
+              Rating (1-10):
+            </Label>
+            <div className="flex items-center space-x-1 mt-1">
+              {Array.from({ length: 10 }, (_, i) => i + 1).map((starValue) => (
+                <svg
+                  key={starValue}
+                  onClick={() => handleStarClick(starValue)}
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  className={`h-7 w-7 cursor-pointer transition transform hover:scale-110 ${
+                    starValue <= formData.rating ? "text-yellow-300" : "text-gray-400"
+                  }`}
+                >
+                  <path d="M9.049 2.927c.3-.921 1.602-.921 1.902 0l1.2 3.684a1 1 0 00.95.69h3.886c.969 0 1.371 1.24.588 1.81l-3.143 2.253a1 1 0 00-.364 1.118l1.2 3.684c.3.921-.755 1.688-1.54 1.118l-3.143-2.253a1 1 0 00-1.176 0l-3.143 2.253c-.785.57-1.84-.197-1.54-1.118l1.2-3.684a1 1 0 00-.364-1.118L2.219 9.111c-.783-.57-.38-1.81.589-1.81h3.886a1 1 0 00.95-.69l1.2-3.684z" />
+                </svg>
+              ))}
+            </div>
+            {formData.rating > 0 && (
+              <p className="text-sm text-gray-200 mt-1">
+                Selected Rating: {formData.rating} / 10
+              </p>
+            )}
+          </div>
+
+          {/* Profile Image Field */}
+          <div className="mb-4">
+            <Label className="block text-sm font-semibold mb-1">
+              Profile Image:
+            </Label>
+            {!formData.profileImage ? (
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={handleProfileImageChange}
+                className="text-sm text-gray-300 focus:outline-none"
+              />
+            ) : (
+              <div className="relative inline-block mt-2">
+                {/* Preview of the selected Profile Image */}
                 <img
-                  src={URL.createObjectURL(file)}
-                  alt={`Preview ${index}`}
-                  className="h-16 w-16 object-cover rounded-md border border-gray-500"
+                  src={URL.createObjectURL(formData.profileImage)}
+                  alt="Profile Preview"
+                  className="h-16 w-16 object-cover rounded-full border border-gray-500"
                 />
+                {/* Remove button */}
                 <button
                   type="button"
-                  onClick={() => removePhoto(index)}
-                  className="absolute top-0 right-0 bg-red-600 text-white 
-                             rounded-full text-xs px-1 hover:bg-red-700 transition"
+                  onClick={removeProfileImage}
+                  className="absolute top-0 right-0 bg-red-600 text-white rounded-full text-xs px-1 
+                             hover:bg-red-700 transition"
                 >
                   ✕
                 </button>
               </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <div className="mt-6">
-          <motion.button
-            type="submit"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-600 
-                       dark:from-blue-400 dark:to-indigo-500
-                       text-white font-semibold rounded-lg shadow-md 
-                       hover:from-blue-600 hover:to-indigo-700 
-                       dark:hover:from-blue-500 dark:hover:to-indigo-600
-                       hover:shadow-lg 
-                       focus:outline-none focus:ring-2 focus:ring-blue-400 
-                       focus:ring-opacity-75 transition-all duration-300 
-                       flex items-center justify-center 
-                       ${
-                         loading ? "opacity-50 cursor-not-allowed" : ""
-                       }`}
-            disabled={loading}
-          >
-            {loading ? (
-              "Submitting..."
-            ) : (
-              <>
-                Submit Review
-                <IconSend className="inline ml-2 h-5 w-5" />
-              </>
             )}
-          </motion.button>
-        </div>
-      </form>
-    </BackgroundGradient>
+          </div>
+
+          {/* Upload Photos Field (up to 3) */}
+          <div className="mb-4">
+            <Label className="block text-sm font-semibold mb-1">
+              Upload Photos (up to 3):
+            </Label>
+            <Input
+              type="file"
+              multiple
+              onChange={handlePhotoChange}
+              accept="image/*"
+              className="text-sm text-gray-300 focus:outline-none"
+            />
+            {/* Thumbnails with remove buttons */}
+            <div className="flex flex-wrap gap-3 mt-3">
+              {photoFiles.map((file, index) => (
+                <div
+                  key={index}
+                  className="relative transition hover:scale-105 hover:shadow-lg"
+                >
+                  <img
+                    src={URL.createObjectURL(file)}
+                    alt={`Preview ${index}`}
+                    className="h-16 w-16 object-cover rounded-md border border-gray-500"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(index)}
+                    className="absolute top-0 right-0 bg-red-600 text-white 
+                               rounded-full text-xs px-1 hover:bg-red-700 transition"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <div className="mt-6">
+            <motion.button
+              type="submit"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`w-full py-3 px-6 bg-gradient-to-r from-blue-500 to-indigo-600 
+                         dark:from-blue-400 dark:to-indigo-500
+                         text-white font-semibold rounded-lg shadow-md 
+                         hover:from-blue-600 hover:to-indigo-700 
+                         dark:hover:from-blue-500 dark:hover:to-indigo-600
+                         hover:shadow-lg 
+                         focus:outline-none focus:ring-2 focus:ring-blue-400 
+                         focus:ring-opacity-75 transition-all duration-300 
+                         flex items-center justify-center 
+                         ${
+                           loading ? "opacity-50 cursor-not-allowed" : ""
+                         }`}
+              disabled={loading}
+            >
+              {loading ? (
+                "Submitting..."
+              ) : (
+                <>
+                  Submit Review
+                  <IconSend className="inline ml-2 h-5 w-5" />
+                </>
+              )}
+            </motion.button>
+          </div>
+        </form>
+      </BackgroundGradient>
+    </div>
   );
 };
 
 export default UserReviewForm;
-// fine and styled form!
