@@ -75,32 +75,31 @@ const HighlightedAchievements = () => {
       />
 
       {/* Main container (carousel) */}
-      <div className="max-w-[1280px] flex flex-col items-center mx-auto py-[20px] relative z-[1000]">
+      <div className="max-w-[1280px] flex flex-col items-center mx-auto py-5 relative z-[1000] h-full">
         <CustomTitle text="Highlights and Achievements" />
 
-        <div className="relative w-full mt-[30px]">
+        <div className="relative w-full mt-8 h-full">
           {/* Carousel Navigation Buttons */}
           <button
-  onClick={scrollLeft}
-  className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 text-white text-2xl font-bold p-3 bg-gradient-to-b from-gray-700 to-gray-900 hover:from-indigo-500 hover:to-purple-700 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
->
-  ←
-</button>
-<button
-  onClick={scrollRight}
-  className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 text-white text-2xl font-bold p-3 bg-gradient-to-b from-gray-700 to-gray-900 hover:from-indigo-500 hover:to-purple-700 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
->
-  →
-</button>
-
+            onClick={scrollLeft}
+            className="absolute left-2 top-1/2 transform -translate-y-1/2 z-10 text-white text-2xl font-bold p-3 bg-gradient-to-b from-gray-700 to-gray-900 hover:from-indigo-500 hover:to-purple-700 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
+          >
+            ←
+          </button>
+          <button
+            onClick={scrollRight}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 z-10 text-white text-2xl font-bold p-3 bg-gradient-to-b from-gray-700 to-gray-900 hover:from-indigo-500 hover:to-purple-700 rounded-full shadow-lg transition-all duration-300 hover:scale-110 hover:shadow-xl"
+          >
+            →
+          </button>
 
           {/* Carousel Container */}
           <div
             ref={carouselRef}
-            className="flex gap-5 w-full overflow-x-hidden py-4"
+            className="flex gap-5 w-full overflow-x-auto py-4 h-full scrollbar-hide"
           >
             {achievements.map((achievement, index) => (
-              <div key={achievement.id} className="flex-shrink-0">
+              <div key={achievement.id} className="flex-shrink-0 w-full md:w-1/2 lg:w-1/3">
                 <AchievementCards
                   title={achievement.title}
                   description={achievement.description}
@@ -125,4 +124,3 @@ const HighlightedAchievements = () => {
 };
 
 export default HighlightedAchievements;
-//fine code...
