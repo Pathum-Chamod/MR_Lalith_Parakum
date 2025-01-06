@@ -1,23 +1,28 @@
-import { cn } from "@/lib/utils";
-import React from "react";
-import { motion } from "framer-motion";
-
-export const BackgroundGradient = ({
+/**
+ * BackgroundGradient Component
+ * 
+ * This component creates an animated background gradient using Framer Motion.
+ * It wraps around the children components, providing a dynamic, darker backdrop.
+ */
+const BackgroundGradient = ({
   children,
   className,
   containerClassName,
-  animate = true
+  animate = true,
 }) => {
   const variants = {
     initial: {
-      backgroundPosition: "0 50%",
+      backgroundPosition: "0% 50%",
     },
     animate: {
-      backgroundPosition: ["0, 50%", "100% 50%", "0 50%"],
+      // The array of positions will animate from 0% -> 100% -> 0%
+      backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"],
     },
   };
+
   return (
-    (<div className={cn("relative p-[4px] group", containerClassName)}>
+    <div className={cn("relative p-[4px] group", containerClassName)}>
+      {/* First Gradient Layer */}
       <motion.div
         variants={animate ? variants : undefined}
         initial={animate ? "initial" : undefined}
@@ -25,19 +30,25 @@ export const BackgroundGradient = ({
         transition={
           animate
             ? {
-                duration: 5,
+                duration: 10, 
                 repeat: Infinity,
-                repeatType: "reverse",
+                repeatType: "loop",
               }
             : undefined
         }
         style={{
-          backgroundSize: animate ? "400% 400%" : undefined,
+          // Adjust backgroundSize if you want the animation to move slower/faster
+          backgroundSize: animate ? "200% 200%" : undefined,
         }}
         className={cn(
-          "absolute inset-0 rounded-3xl z-[1] opacity-60 group-hover:opacity-100 blur-xl  transition duration-500 will-change-transform",
-          " bg-[radial-gradient(circle_farthest-side_at_0_100%,#00ccb1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#7b61ff,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#ffc414,transparent),radial-gradient(circle_farthest-side_at_0_0,#1ca0fb,#141316)]"
-        )} />
+          // Slightly reduce the opacity for a more subtle effect
+          "absolute inset-0 rounded-3xl z-[1] opacity-50 group-hover:opacity-70 blur-xl transition duration-500",
+          // D A R K E R   G R A D I E N T   E X A M P L E
+          "bg-gradient-to-r from-gray-700 via-gray-800 to-black"
+        )}
+      />
+      
+      {/* Second Gradient Layer */}
       <motion.div
         variants={animate ? variants : undefined}
         initial={animate ? "initial" : undefined}
@@ -45,20 +56,26 @@ export const BackgroundGradient = ({
         transition={
           animate
             ? {
-                duration: 5,
+                duration: 10,
                 repeat: Infinity,
-                repeatType: "reverse",
+                repeatType: "loop",
               }
             : undefined
         }
         style={{
-          backgroundSize: animate ? "400% 400%" : undefined,
+          backgroundSize: animate ? "200% 200%" : undefined,
         }}
         className={cn(
           "absolute inset-0 rounded-3xl z-[1] will-change-transform",
-          "bg-[radial-gradient(circle_farthest-side_at_0_100%,#00ccb1,transparent),radial-gradient(circle_farthest-side_at_100%_0,#7b61ff,transparent),radial-gradient(circle_farthest-side_at_100%_100%,#ffc414,transparent),radial-gradient(circle_farthest-side_at_0_0,#1ca0fb,#141316)]"
-        )} />
-      <div className={cn("relative z-10", className)}>{children}</div>
-    </div>)
+          // Another subtle dark gradient
+          "bg-gradient-to-r from-black via-gray-900 to-gray-800"
+        )}
+      />
+
+      {/* Content Wrapper */}
+      <div className={cn("relative z-10", className)}>
+        {children}
+      </div>
+    </div>
   );
 };

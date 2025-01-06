@@ -2,10 +2,10 @@
 
 "use client";
 
-import React, { useState } from "react";
 import { db, storage } from "@/lib/firebase";
 import { addDoc, collection } from "firebase/firestore";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { useState } from "react";
 import Swal from "sweetalert2";
 
 // Import Custom Components
@@ -15,15 +15,15 @@ import { Label } from "@/components/ui/label";
 // Import utility functions
 import { cn } from "@/lib/utils";
 
-// Import Framer Motion and Icon (Optional for animations and icons)
-import { motion } from "framer-motion";
+// Import Framer Motion and Icon
 import { IconSend } from "@tabler/icons-react";
+import { motion } from "framer-motion";
 
 /**
  * BackgroundGradient Component
  * 
- * This component creates an animated background gradient using Framer Motion.
- * It wraps around the children components, providing a dynamic backdrop.
+ * This component creates an animated darker background gradient using Framer Motion.
+ * It wraps around the children components, providing a subtle and sophisticated backdrop.
  */
 const BackgroundGradient = ({
   children,
@@ -42,7 +42,7 @@ const BackgroundGradient = ({
 
   return (
     <div className={cn("relative p-[4px] group", containerClassName)}>
-      {/* First Gradient Layer */}
+      {/* First Dark Gradient Layer */}
       <motion.div
         variants={animate ? variants : undefined}
         initial={animate ? "initial" : undefined}
@@ -50,7 +50,7 @@ const BackgroundGradient = ({
         transition={
           animate
             ? {
-                duration: 10, // Adjust duration for speed
+                duration: 15, // Slower animation for subtle effect
                 repeat: Infinity,
                 repeatType: "loop",
               }
@@ -60,12 +60,12 @@ const BackgroundGradient = ({
           backgroundSize: animate ? "200% 200%" : undefined,
         }}
         className={cn(
-          "absolute inset-0 rounded-3xl z-[1] opacity-60 group-hover:opacity-100 blur-xl transition duration-500",
-          "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"
+          "absolute inset-0 rounded-3xl z-[1] opacity-40 group-hover:opacity-60 blur-xl transition duration-700",
+          "bg-gradient-to-r from-gray-800 via-gray-900 to-black"
         )}
       />
       
-      {/* Second Gradient Layer */}
+      {/* Second Dark Gradient Layer */}
       <motion.div
         variants={animate ? variants : undefined}
         initial={animate ? "initial" : undefined}
@@ -73,7 +73,7 @@ const BackgroundGradient = ({
         transition={
           animate
             ? {
-                duration: 10, // Adjust duration for speed
+                duration: 20, // Different duration for layered effect
                 repeat: Infinity,
                 repeatType: "loop",
               }
@@ -83,8 +83,8 @@ const BackgroundGradient = ({
           backgroundSize: animate ? "200% 200%" : undefined,
         }}
         className={cn(
-          "absolute inset-0 rounded-3xl z-[1] will-change-transform",
-          "bg-gradient-to-r from-green-400 via-blue-500 to-purple-600"
+          "absolute inset-0 rounded-3xl z-[2] opacity-30 group-hover:opacity-50 blur-2xl transition duration-700",
+          "bg-gradient-to-r from-gray-900 via-gray-800 to-gray-700"
         )}
       />
       
@@ -123,7 +123,7 @@ const UserReviewForm = () => {
       if (sanitizedValue.length <= MAX_QUOTE_LENGTH) {
         setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
       } else {
-        // Optionally, you can show a warning or simply prevent further input
+        // Show a warning
         Swal.fire({
           icon: "warning",
           title: "Character Limit Reached",
@@ -287,7 +287,7 @@ const UserReviewForm = () => {
           "relative z-10"
         )}
         style={{
-          // fallback for older browsers
+          // Fallback for older browsers
           backgroundColor: "rgba(255, 255, 255, 0.1)",
           backdropFilter: "blur(8px)",
         }}
