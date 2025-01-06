@@ -1,8 +1,11 @@
+// src/components/InfiniteMovingCardsDemo.jsx
+
 "use client";
 
 import { db } from "@/lib/firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
 import { useEffect, useState } from "react";
+import CustomTitle from "./CustomTitle"; // Ensure correct import path
 import { InfiniteMovingCards } from "./ui/Infinite-moving-cards"; // Adjust import path as needed
 
 export function InfiniteMovingCardsDemo() {
@@ -12,7 +15,7 @@ export function InfiniteMovingCardsDemo() {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        // Only fetch approved, *not hidden* reviews
+        // Only fetch approved, not hidden reviews
         const q = query(
           collection(db, "ApprovedReviews"),
           where("isHidden", "==", false)
@@ -36,16 +39,32 @@ export function InfiniteMovingCardsDemo() {
   }, []);
 
   if (loading) {
-    return <div>Loading reviews...</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <span className="text-gray-500">Loading reviews...</span>
+      </div>
+    );
   }
+
   if (reviews.length === 0) {
-    return <div>No approved reviews to display.</div>;
+    return (
+      <div className="flex items-center justify-center h-64">
+        <span className="text-gray-500">No approved reviews to display.</span>
+      </div>
+    );
   }
 
   return (
-    <div className="h-[40rem] rounded-md flex flex-col bg-white dark:bg-black items-center justify-center relative overflow-hidden">
-      <InfiniteMovingCards items={reviews} direction="right" speed="slow" />
+    <div className="relative bg-black py-8 flex flex-col items-center justify-center">
+      {/* Title */}
+      <CustomTitle text="Students Reviews and Ratings" />
+
+      {/* Container for the Infinite Moving Cards */}
+      <div className="mt-6 w-full max-w-4xl">
+        <InfiniteMovingCards items={reviews} direction="right" speed="slow" />
+      </div>
     </div>
   );
 }
-//finalized
+
+// Finalized
